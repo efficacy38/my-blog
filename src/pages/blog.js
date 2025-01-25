@@ -3,32 +3,41 @@ import Layout from '../components/layout'
 import Seo from '../components/seo'
 import { graphql } from 'gatsby'
 
+const BlogPage = ({data}) => {
+  return (
+    <Layout pageTitle="My Blog Posts">
+      {
+        data.allMdx.nodes.map((node) => (
+          <article key={node.id}>
+            <h2>{node.frontmatter.title}</h2>
+            <p>Posted: {node.frontmatter.date}</p>
+            <p>{node.excerpt}</p>
+          </article>
+        ))
+      }
+    </Layout>
+  )
+}
+
 export const query = graphql`
 query {
-  allFile(filter: {sourceInstanceName: {eq: "blog"}}) {
+  allMdx(sort: { frontmatter: { date: DESC } }) {
     nodes {
-      name
+      frontmatter {
+        date(formatString: "MMMM D, YYYY")
+        title
+      }
+      id
+      excerpt
+      parent {
+        ... on File {
+          modifiedTime(formatString: "MMMM D, YYYY")
+        }
+      }
     }
   }
 }
 `
-
-const BlogPage = ({data}) => {
-  return (
-    <Layout pageTitle="My Blog Posts">
-      <p>My cool posts will go in here</p>
-      <ul>
-      {
-        data.allFile.nodes.map(node => (
-          <li key={node.name}>
-            {node.name}
-          </li>
-        ))
-      }
-      </ul>
-    </Layout>
-  )
-}
 
 export const Head = () => <Seo title="My Blog Posts" />
 
